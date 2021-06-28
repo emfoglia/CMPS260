@@ -1,0 +1,147 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>CMPS 260: Module 8 Programming Assignment</title>
+<style>* { font-family: monospace; }</style>
+<script>
+
+// NOTE: You must implement the data structures using the no prototype approach.
+//       This is what the book uses, so you can copy it.
+//       See also: https://it.pointpark.edu/tutorials/no-prototype-vs-prototype/
+
+// NOTE: Please review the following links regularly:
+//       https://it.pointpark.edu/tutorials/arrays-vs-objects/
+//       https://it.pointpark.edu/tutorials/no-prototype-vs-prototype/
+//       https://it.pointpark.edu/tutorials/implementation-vs-interface/
+
+
+
+//----------------//
+// Big O notation //
+//----------------//
+console.log("Big O notation");
+
+// 1. Analyze the complexity of the isPalindrome function below. Make a
+//    distinction between best, worst, and average case complexity.
+
+function isPalindrome(str) {
+  for (var i = 0; i < str.length/2; i++) {
+    if (str[i] !== str[str.length-i-1]) {
+      return false;
+    }
+  }
+  return true;
+}
+
+// Best case complexity is O(1). An empty string would not enter the loop. Some instances would only loop once.
+// Worst case complexity is O(n). A max length string that is a full palindrome.
+// Average case complexity is O(n). There is one loop in the function, so we can determine the complexity this way.
+
+
+// 2. Write a program that finds the minimum element in a stack in O(1) time
+//    complexity. Note that earlier solutions searched through the elements on
+//    the stack but that leads to an O(n) solution.
+//    NOTE: this question is sometimes asked on interviews.
+
+function Stack() {
+  var items = [];
+  var support = [];
+  this.push = function(x) {
+    items.push(x);
+    if(support[support.length-1] === undefined){
+      support.push(x);
+    }
+    else if(items[items.length-1] <= support[support.length-1]){
+      support.push(x);
+    }
+  };
+  this.pop = function() {
+    var popped = items.pop();
+    if(popped === support[support.length-1]){
+      support.pop();
+    }
+  };
+  this.peek = function() {
+    return items[items.length - 1];
+  };
+  this.isEmpty = function() {
+    return items.length === 0;
+  };
+  this.clear = function() {
+    items = [];
+  };
+  this.size = function() {
+    return items.length;
+  };
+  this.print = function() {
+    console.log(items.toString());
+  };
+  this.getMin = function() {
+    return support[support.length-1];
+  }
+}
+
+// I have implemented a supporting stack that keeps track of the minimum value contained in the stack.
+// Both the push and pop functions were modified to work with this supporting stack.
+// By keeping the minimum value readily available in the supporting stack, the getMin function is in O(1) time because it is not searching.
+
+var stack = new Stack();
+stack.push(10);
+stack.push(9);
+stack.push(11);
+stack.push(7);
+stack.push(12);
+stack.push(7);
+console.log(stack.getMin());
+stack.pop();
+console.log(stack.getMin());
+stack.pop();
+console.log(stack.getMin());
+stack.pop();
+console.log(stack.getMin());
+stack.pop();
+console.log(stack.getMin());
+stack.pop();
+console.log(stack.getMin());
+
+
+//----------------------------//
+// Having fun with algorithms //
+//----------------------------//
+console.log("Having fun with algorithms");
+
+// 1. Solve Project Euler problem 1 (https://projecteuler.net/problem=1).
+// Find the sum of all the multiples of 3 or 5 below 1000.
+
+var sum = 0;
+for (var i = 0; i < 1000; i++){
+  if(i % 3 === 0 || i % 5 === 0){
+    sum += i;
+  }
+}
+console.log("The sum of all multiples of 3 or 5 below 1000 is " + sum);
+
+
+// 2. Solve Project Euler problem 2 (https://projecteuler.net/problem=2).
+// By considering the terms in the Fibonacci sequence whose values do not exceed four million, find the sum of the even-valued terms.
+
+var fib = [0,1];
+var next = 0;
+var sum = 0;
+while (fib[0] + fib[1] < 4000000){
+  next = fib[0] + fib[1];
+  if(next % 2 === 0){
+    sum += next;
+  }
+  fib[0] = fib[1];
+  fib[1] = next;
+}
+console.log("The sum of all even-valued terms in the Fibonacci sequence under four million is " + sum);
+
+</script>
+</head>
+<body>
+  See console!
+</body>
+</html>
