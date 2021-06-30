@@ -1,0 +1,258 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>CMPS 260: Module 8 Programming Project</title>
+<style>* { font-family: monospace; }</style>
+<script>
+
+// NOTE: You must implement the data structures using the prototype approach.
+//       This is not what the book uses, so you have to convert it.
+//       See also: https://it.pointpark.edu/tutorials/no-prototype-vs-prototype/
+
+// NOTE: Please review the following links regularly:
+//       https://it.pointpark.edu/tutorials/arrays-vs-objects/
+//       https://it.pointpark.edu/tutorials/no-prototype-vs-prototype/
+//       https://it.pointpark.edu/tutorials/implementation-vs-interface/
+
+
+
+//---------//
+// Project //
+//---------//
+console.log("Project");
+
+// 1. What is the worst case complexity of the following function?
+
+function hasDuplicates(arr) {
+  for (var i = 0; i < arr.length; i++) {
+    for (var j = 0; j < arr.length; j++) {
+      if (i !== j && arr[i] === arr[j]) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+// Worst case complexity: O(n^2)
+// Both loops iterate through entirely
+
+// 2. Implement a faster version of the same function and analyze the
+//    complexity of this approach.
+
+function hasDuplicatesFast(arr) {
+  arr.sort();
+  for (var i = 0; i < arr.length-1; i++){
+    if(arr[i] === arr[i+1]){
+      return true;
+    }
+  }
+  return false;
+}
+
+// This version has complexity O(n).
+var arr = [4, 1, 8, 3, 9, 0, 3];
+console.log(hasDuplicatesFast(arr));
+var arr = [6, 4, 9];
+console.log(hasDuplicatesFast(arr));
+
+
+// 3. The travelling salesman problem is a another classic problem and we are
+//    going to solve it using a greedy algorithm. Before starting, please read
+//    through the article on Wikipedia:
+//      https://en.wikipedia.org/wiki/Travelling_salesman_problem
+//    Then implement the following:
+//    (a) Create a graph that represents the example symmetric TSP problem on
+//        the Wikipedia page.
+//    (b) Implement a greedy search that finds the shortest path. You should
+//        have the following steps: (1) pick node A as the starting position,
+//        (2) pick the closest neighbor that has not been visited as the next
+//        city to visit, (3) continue this process until returning to A,
+//        (4) print the final length of the path and also the sequence of
+//        the cities.
+//    (c) Check your results, do they make sense? Is is the optimal solution?
+
+function Dictionary() {
+  var items = {};
+  this.set = function(key, value) {
+    items[key] = value;
+  };
+  this.delete = function(key) {
+    if(this.has(key)){
+      delete items[key];
+      return true;
+    }
+    return false;
+  };
+  this.has = function(key) {
+    return key in items;
+  };
+  this.get = function(key) {
+    return this.has(key) ? items[key] : undefined;
+  };
+  this.clear = function() {
+    items = {};
+  };
+  this.size = function() {
+    return Object.keys(items).length;
+  };
+  this.keys = function() {
+    return Object.keys(items);
+  };
+  this.values = function() {
+    var values = [];
+    for(var k in items) {
+      if(this.has(k)){
+        values.push(items[k]);
+      }
+    }
+    return values;
+  };
+  this.getItems = function() {
+    return items;
+  };
+}
+
+function Graph() {
+  var vertices = [];
+  length = vertices.length;
+  var adjList = new Dictionary();
+
+  var initializeColor = function(){
+    var color = [];
+    for (var i=0; i<vertices.length; i++){
+      color[vertices[i]] = 'white'; //{1}
+    }
+    return color;
+  };
+  this.addVertex = function(v){
+    vertices.push(v);
+    adjList.set(v, []);
+  };
+  this.getVertex = function(v){
+    return vertices[v];
+  }
+  this.addEdge = function(v, w){
+    adjList.get(v).push(w);
+    adjList.get(w).push(v);
+  };
+  this.toString = function(){
+    var s = '';
+    for (var i=0; i<vertices.length; i++){
+      s+=vertices[i] + ' -> ';
+      var neighbors = adjList.get(vertices[i]);
+      for(var j = 0; j<neighbors.length; j++){
+        s+= neighbors[j] + ' ';
+      }
+      s+= '\n';
+    }
+    return s;
+  };
+  this.greedyPath = function(graph){
+    var visited = [],
+    path = [],
+    next = 0,
+    current = 0,
+    lengthOfPath = 0;
+    for(var i = 0; i < graph.length; i++){
+      next = this.findMinDistance(graph[current], visited);
+      if(next != Infinity){
+        lengthOfPath+= graph[i][next];
+      }
+      visited[current] = 1;
+      path[i] = current;
+      current = next;
+    }
+    // Visually represent the path on the console.
+    for(var j = 0; j < path.length; j++){
+      console.log("Node " + this.getVertex(path[j]));
+      console.log("↓");
+    }
+    console.log("Node " + this.getVertex(path[0])); // add loop back to A.
+    lengthOfPath += graph[path[path.length-1]][0]; // add distance of loop back to A.
+    console.log("The total length of the path is " + lengthOfPath + "."); // Print total length of the path
+  };
+  // Helper function to find minimum distance between unvisited nodes.
+  this.findMinDistance = function(array, visited){
+    var min = Infinity;
+    for(var i = 0; i < array.length; i++){
+      if(array[i] != 0 && array[i] < min && visited[i] != 1){
+        min = i;
+      }
+    }
+    return min;
+  };
+}
+var graph = [[0, 20, 42, 35],
+            [20, 0, 30, 34],
+            [42, 30, 0, 12],
+            [35, 34, 12, 0]];
+var graphObj = new Graph();
+var myVertices = ['A', 'B', 'C', 'D'];
+for (var i=0; i < myVertices.length; i++){
+  graphObj.addVertex(myVertices[i]);
+}
+graphObj.greedyPath(graph);
+
+// My results do make sense. Using the example from wikipedia, the optimal path is A, B, C, D, A with a length of 97, which my code is correctly returning.
+// I'm not sure if this is the optimal solution, but I don't believe that is is. I'm sure that there is at least room for improvement in my code, if not a better method all together.
+
+// 4. Solve https://csacademy.com/contest/interview-archive/task/intersecting-rectangles/
+//    What is the runtime complexity of your solution?
+//    HINT: Try to break down the problems into smaller steps. For example,
+//          find a convenient way to represent rectangles and define a function
+//          that tests whether one rectangle is inside another. Then test your
+//          code on just two rectangles first to make sure it works.
+console.log("Intersecting Triangles\n----------------------");
+
+function Triangle(x1, y1, x2, y2) {
+  var x1 = x1;
+  var x2 = x2;
+  var y1 = y1;
+  var y2 = y2;
+  this.x1 = function(){
+    return x1;
+  }
+  this.x2 = function(){
+    return x2;
+  }
+  this.y1 = function(){
+    return y1;
+  }
+  this.y2 = function(){
+    return y2;
+  }
+}
+checkIntersection = function(t1, t2){
+  if (t1.x2() <= t2.x1()){ return false; }
+  if (t1.y2() <= t2.y1()){ return false; }
+  if (t2.x2() <= t1.x1()){ return false; }
+  if (t2.y2() <= t1.y1()){ return false; }
+  return true;
+}
+trianglesIntersect = function(triangleArray){
+  var length = triangleArray.length
+  for(var i = 0; i < length-1; i++){
+    for(var j = i+1; j < length; j++){
+      console.log(checkIntersection(triangleArray[i], triangleArray[j]) ? ("Triangles " + (i+1) + " and " + (j+1) + " intersect.") : ("Triangles " + (i+1) + " and " + (j+1) + " do not intersect."));
+    }
+  }
+}
+
+triangle1 = new Triangle(1, 1, 3, 4);
+triangle2 = new Triangle(3, 3, 5, 7);
+triangle3 = new Triangle(4, 1, 8, 4);
+triangle4 = new Triangle(7, 2, 9, 7);
+triangle5 = new Triangle(0, 0, 10, 8);
+var triangleArray = [triangle1, triangle2, triangle3, triangle4, triangle5];
+trianglesIntersect(triangleArray);
+
+// My solution has a runtime complexity of O(n^2). There are two for-loops in the main function.
+
+</script>
+</head>
+<body>
+  See console!
+</body>
+</html>
